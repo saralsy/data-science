@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>&lt;no title&gt; &#8212; My sample book</title>
+    <title>Altair Intro &#8212; My sample book</title>
   
   
   
@@ -178,7 +178,10 @@
                 </a>
             </li>
         </ul>
-        
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Altair Intro</a></li>
+</ul>
+
     </div>
 </nav></div>
     </div>
@@ -349,9 +352,7 @@ document.write(`
   </button>
 `);
 </script>
-<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
-    <span class="fa-solid fa-list"></span>
-</button>
+
 </div></div>
       
     </div>
@@ -362,19 +363,11 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1><no title></h1>
+    <h1>Altair Intro</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
             
-            <div>
-                <h2> Contents </h2>
-            </div>
-            <nav aria-label="Page">
-                <ul class="simple visible nav section-nav flex-column">
-</ul>
-
-            </nav>
         </div>
     </div>
 </div>
@@ -384,13 +377,8 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Altair Intro</span>
-</pre></div>
-</div>
-</div>
-</div>
+  <section class="tex2jax_ignore mathjax_ignore" id="altair-intro">
+<h1>Altair Intro<a class="headerlink" href="#altair-intro" title="Link to this heading">#</a></h1>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">!</span>pip<span class="w"> </span>install<span class="w"> </span>altair<span class="w"> </span>vega_datasets
@@ -410,10 +398,10 @@ Requirement already satisfied: attrs&gt;=22.2.0 in /Users/saraliu/Library/Caches
 Requirement already satisfied: jsonschema-specifications&gt;=2023.03.6 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from jsonschema&gt;=3.0-&gt;altair) (2023.12.1)
 Requirement already satisfied: referencing&gt;=0.28.4 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from jsonschema&gt;=3.0-&gt;altair) (0.35.1)
 Requirement already satisfied: rpds-py&gt;=0.7.1 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from jsonschema&gt;=3.0-&gt;altair) (0.20.0)
+Requirement already satisfied: MarkupSafe&gt;=2.0 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from jinja2-&gt;altair) (2.1.5)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Requirement already satisfied: MarkupSafe&gt;=2.0 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from jinja2-&gt;altair) (2.1.5)
-Requirement already satisfied: numpy&gt;=1.22.4 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from pandas-&gt;vega_datasets) (2.0.2)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Requirement already satisfied: numpy&gt;=1.22.4 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from pandas-&gt;vega_datasets) (2.0.2)
 Requirement already satisfied: python-dateutil&gt;=2.8.2 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from pandas-&gt;vega_datasets) (2.9.0.post0)
 Requirement already satisfied: pytz&gt;=2020.1 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from pandas-&gt;vega_datasets) (2024.1)
 Requirement already satisfied: tzdata&gt;=2022.7 in /Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages (from pandas-&gt;vega_datasets) (2024.1)
@@ -480,23 +468,23 @@ Requirement already satisfied: six&gt;=1.5 in /Users/saraliu/Library/Caches/pypo
 <div class="cell_output docutils container">
 <div class="output text_html">
 <style>
-  #altair-viz-97cac42461d7475594e0224c383a0039.vega-embed {
+  #altair-viz-f24e363a9265467d941ed5b2d2410d73.vega-embed {
     width: 100%;
     display: flex;
   }
 
-  #altair-viz-97cac42461d7475594e0224c383a0039.vega-embed details,
-  #altair-viz-97cac42461d7475594e0224c383a0039.vega-embed details summary {
+  #altair-viz-f24e363a9265467d941ed5b2d2410d73.vega-embed details,
+  #altair-viz-f24e363a9265467d941ed5b2d2410d73.vega-embed details summary {
     position: relative;
   }
 </style>
-<div id="altair-viz-97cac42461d7475594e0224c383a0039"></div>
+<div id="altair-viz-f24e363a9265467d941ed5b2d2410d73"></div>
 <script type="text/javascript">
   var VEGA_DEBUG = (typeof VEGA_DEBUG == "undefined") ? {} : VEGA_DEBUG;
   (function(spec, embedOpt){
     let outputDiv = document.currentScript.previousElementSibling;
-    if (outputDiv.id !== "altair-viz-97cac42461d7475594e0224c383a0039") {
-      outputDiv = document.getElementById("altair-viz-97cac42461d7475594e0224c383a0039");
+    if (outputDiv.id !== "altair-viz-f24e363a9265467d941ed5b2d2410d73") {
+      outputDiv = document.getElementById("altair-viz-f24e363a9265467d941ed5b2d2410d73");
     }
     const paths = {
       "vega": "https://cdn.jsdelivr.net/npm/vega@5?noext",
@@ -545,6 +533,7 @@ Requirement already satisfied: six&gt;=1.5 in /Users/saraliu/Library/Caches/pypo
   })({"config": {"view": {"continuousWidth": 300, "continuousHeight": 300, "stroke": null}, "axisX": {"grid": false}, "axisY": {"domain": false, "offset": 10, "ticks": false}}, "data": {"url": "https://cdn.jsdelivr.net/npm/vega-datasets@v1.29.0/data/disasters.csv"}, "mark": {"type": "circle", "opacity": 0.8, "stroke": "black", "strokeOpacity": 0.4, "strokeWidth": 1}, "encoding": {"color": {"field": "Entity", "legend": null, "type": "nominal"}, "size": {"field": "Deaths", "legend": {"clipHeight": 30, "format": "s", "title": "Deaths"}, "scale": {"range": [0, 2500]}, "type": "quantitative"}, "tooltip": [{"field": "Entity", "type": "nominal"}, {"field": "Year", "format": "%Y", "type": "temporal"}, {"field": "Deaths", "format": "~s", "type": "quantitative"}], "x": {"field": "Year", "scale": {"domain": ["1899", "2018"]}, "title": null, "type": "temporal"}, "y": {"field": "Entity", "sort": {"field": "Deaths", "op": "sum", "order": "descending"}, "title": null, "type": "nominal"}}, "height": 320, "title": {"text": "Global Deaths from Natural Disasters (1900-2017)", "anchor": "start", "subtitle": "The size of the bubble represents the total death count per year, by type of disaster"}, "transform": [{"filter": "(datum.Entity !== 'All natural disasters')"}], "width": 450, "$schema": "https://vega.github.io/schema/vega-lite/v5.20.1.json"}, {"mode": "vega-lite"});
 </script></div></div>
 </div>
+</section>
 
     <script type="text/x-thebe-config">
     {
@@ -591,21 +580,6 @@ Requirement already satisfied: six&gt;=1.5 in /Users/saraliu/Library/Caches/pypo
             </div>
             
             
-              
-                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
-
-
-  <div class="sidebar-secondary-item">
-  <div class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> Contents
-  </div>
-  <nav class="bd-toc-nav page-toc">
-    <ul class="simple visible nav section-nav flex-column">
-</ul>
-
-  </nav></div>
-
-</div></div>
               
             
           </div>
