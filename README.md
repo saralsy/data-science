@@ -1,8 +1,12 @@
-# data-science
+# Sara's ML Notebooks
 
-Link to published Jupyter notebooks: https://saralsy.github.io/data-science/
+- Link to published Jupyter notebooks: https://saralsy.github.io/data-science/
 
-Publish more notebooks:
+## Topics
+
+-
+
+Command to publish more notebooks:
 
 ```
 poetry run jupyter-book build myfirstbook
