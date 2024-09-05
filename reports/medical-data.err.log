@@ -1,0 +1,78 @@
+Traceback (most recent call last):
+  File "/Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/jupyter_cache/executors/utils.py", line 58, in single_nb_execution
+    executenb(
+  File "/Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 1314, in execute
+    return NotebookClient(nb=nb, resources=resources, km=km, **kwargs).execute()
+  File "/Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/jupyter_core/utils/__init__.py", line 165, in wrapped
+    return loop.run_until_complete(inner)
+  File "/Users/saraliu/miniconda3/lib/python3.9/asyncio/base_events.py", line 647, in run_until_complete
+    return future.result()
+  File "/Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 709, in async_execute
+    await self.async_execute_cell(
+  File "/Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 1062, in async_execute_cell
+    await self._check_raise_for_error(cell, cell_index, exec_reply)
+  File "/Users/saraliu/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/nbclient/client.py", line 918, in _check_raise_for_error
+    raise CellExecutionError.from_cell_and_msg(cell, exec_reply_content)
+nbclient.exceptions.CellExecutionError: An error occurred while executing the following cell:
+------------------
+prompt = """
+    Return as JSON. 
+    Include: indication/disease name, indication as EFO ID, product name, 
+    trial phase. Don't return the original text.
+    """
+text = """This phase 3, randomized, double-blind trial will assess 
+    long-term safety and efficacy of VYX-561 versus imatinib in patients 
+    with Chronic Myeloid Leukemia (CML) positive for the Philadelphia 
+    chromosome. CML causes increased and unregulated myeloid cell growth. 
+    VYX-561 is an investigational oral targeted therapy that 
+    inhibits the abnormal protein driving CML progression.
+    """
+
+response_json = get_openai_response(
+    prompt_text=prompt, 
+    text=text
+)
+------------------
+
+
+[0;31m---------------------------------------------------------------------------[0m
+[0;31mTypeError[0m                                 Traceback (most recent call last)
+Cell [0;32mIn[3], line 14[0m
+[1;32m      1[0m prompt [38;5;241m=[39m [38;5;124m"""[39m
+[1;32m      2[0m [38;5;124m    Return as JSON. [39m
+[1;32m      3[0m [38;5;124m    Include: indication/disease name, indication as EFO ID, product name, [39m
+[1;32m      4[0m [38;5;124m    trial phase. Don[39m[38;5;124m'[39m[38;5;124mt return the original text.[39m
+[1;32m      5[0m [38;5;124m    [39m[38;5;124m"""[39m
+[1;32m      6[0m text [38;5;241m=[39m [38;5;124m"""[39m[38;5;124mThis phase 3, randomized, double-blind trial will assess [39m
+[1;32m      7[0m [38;5;124m    long-term safety and efficacy of VYX-561 versus imatinib in patients [39m
+[1;32m      8[0m [38;5;124m    with Chronic Myeloid Leukemia (CML) positive for the Philadelphia [39m
+[0;32m   (...)[0m
+[1;32m     11[0m [38;5;124m    inhibits the abnormal protein driving CML progression.[39m
+[1;32m     12[0m [38;5;124m    [39m[38;5;124m"""[39m
+[0;32m---> 14[0m response_json [38;5;241m=[39m [43mget_openai_response[49m[43m([49m
+[1;32m     15[0m [43m    [49m[43mprompt_text[49m[38;5;241;43m=[39;49m[43mprompt[49m[43m,[49m[43m [49m
+[1;32m     16[0m [43m    [49m[43mtext[49m[38;5;241;43m=[39;49m[43mtext[49m
+[1;32m     17[0m [43m)[49m
+
+Cell [0;32mIn[2], line 11[0m, in [0;36mget_openai_response[0;34m(prompt_text, text)[0m
+[1;32m     10[0m [38;5;28;01mdef[39;00m [38;5;21mget_openai_response[39m(prompt_text, text):
+[0;32m---> 11[0m     completion [38;5;241m=[39m [43mclient[49m[38;5;241;43m.[39;49m[43mcompletions[49m[38;5;241;43m.[39;49m[43mcreate[49m[43m([49m
+[1;32m     12[0m [43m        [49m[43mmessages[49m[43m [49m[38;5;241;43m=[39;49m[43m [49m[43m[[49m[43m{[49m[38;5;124;43m"[39;49m[38;5;124;43mrole[39;49m[38;5;124;43m"[39;49m[43m:[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43muser[39;49m[38;5;124;43m"[39;49m[43m,[49m[43m [49m[38;5;124;43m"[39;49m[38;5;124;43mcontent[39;49m[38;5;124;43m"[39;49m[43m:[49m[43m [49m[38;5;124;43mf[39;49m[38;5;124;43m"[39;49m[38;5;132;43;01m{[39;49;00m[43mprompt_text[49m[38;5;132;43;01m}[39;49;00m[38;5;124;43m: [39;49m[38;5;132;43;01m{[39;49;00m[43mtext[49m[38;5;132;43;01m}[39;49;00m[38;5;124;43m"[39;49m[43m}[49m[43m][49m[43m,[49m
+[1;32m     13[0m [43m        [49m[43mmodel[49m[38;5;241;43m=[39;49m[38;5;124;43m'[39;49m[38;5;124;43mcurie[39;49m[38;5;124;43m'[39;49m[43m,[49m
+[1;32m     14[0m [43m         [49m[43mtemperature[49m[38;5;241;43m=[39;49m[38;5;241;43m0[39;49m[43m,[49m
+[1;32m     15[0m [43m        [49m[43mmax_tokens[49m[38;5;241;43m=[39;49m[38;5;241;43m500[39;49m[43m,[49m
+[1;32m     16[0m [43m        [49m[43mtop_p[49m[38;5;241;43m=[39;49m[38;5;241;43m1.0[39;49m[43m,[49m
+[1;32m     17[0m [43m        [49m[43mfrequency_penalty[49m[38;5;241;43m=[39;49m[38;5;241;43m0.0[39;49m[43m,[49m
+[1;32m     18[0m [43m        [49m[43mpresence_penalty[49m[38;5;241;43m=[39;49m[38;5;241;43m0.0[39;49m
+[1;32m     19[0m [43m    [49m[43m)[49m
+[1;32m     21[0m     [38;5;28mprint[39m(completion[38;5;241m.[39mchoices[[38;5;241m0[39m][38;5;241m.[39mtext)
+[1;32m     22[0m     [38;5;28mprint[39m([38;5;28mdict[39m(completion)[38;5;241m.[39mget([38;5;124m'[39m[38;5;124musage[39m[38;5;124m'[39m))
+
+File [0;32m~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/openai/_utils/_utils.py:273[0m, in [0;36mrequired_args.<locals>.inner.<locals>.wrapper[0;34m(*args, **kwargs)[0m
+[1;32m    271[0m         [38;5;28;01melse[39;00m:
+[1;32m    272[0m             msg [38;5;241m=[39m [38;5;124mf[39m[38;5;124m"[39m[38;5;124mMissing required argument: [39m[38;5;132;01m{[39;00mquote(missing[[38;5;241m0[39m])[38;5;132;01m}[39;00m[38;5;124m"[39m
+[0;32m--> 273[0m     [38;5;28;01mraise[39;00m [38;5;167;01mTypeError[39;00m(msg)
+[1;32m    274[0m [38;5;28;01mreturn[39;00m func([38;5;241m*[39margs, [38;5;241m*[39m[38;5;241m*[39mkwargs)
+
+[0;31mTypeError[0m: Missing required arguments; Expected either ('model' and 'prompt') or ('model', 'prompt' and 'stream') arguments to be given
+
