@@ -1,11 +1,17 @@
-# Welcome to your Jupyter Book
+# Welcome to Saralsy's Learning Projects
 
-This is a small sample book to give you a feel for how book content is
-structured.
-It shows off a few of the major file types, as well as some sample content.
-It does not go in-depth into any particular topic - check out [the Jupyter Book documentation](https://jupyterbook.org) for more information.
+This Jupyter notebook is a colletion of my data science projects for fun.
 
-Check out the content pages bundled with this sample book to see more.
+Here are a few topics that I am actively learning and exploring:
+
+- Data analysis and visualization
+- Machine learning model implementations
+- Statistical analyses
+- Exploratory data analysis
+- And more!
+
+Check out the my data science journey here:
 
 ```{tableofcontents}
+
 ```
