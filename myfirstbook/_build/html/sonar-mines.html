@@ -58,8 +58,10 @@
     <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
     <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'sonar-mines';</script>
+    <link rel="icon" href="_static/icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Boston House Prices" href="boston-house.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -122,8 +124,6 @@
       
       
       
-        
-      
       <div class="bd-sidebar-primary bd-sidebar">
         
 
@@ -179,9 +179,10 @@
                 </a>
             </li>
         </ul>
-        <ul class="nav bd-sidenav">
+        <ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="iris-data.html">Iris Species</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boston-house.html">Boston House Prices</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Connectionist Bench (Sonar, Mines vs. Rocks)</a></li>
 </ul>
 
     </div>
@@ -666,7 +667,7 @@ dtype: int64
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>KNN: 0.758824 (0.106417)
-CART: 0.691912 (0.110744)
+CART: 0.733456 (0.097093)
 NB: 0.682721 (0.136040)
 SVM: 0.565809 (0.141326)
 </pre></div>
@@ -687,7 +688,7 @@ SVM: 0.565809 (0.141326)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/993c0586b91a8a9c27ec7353cf04a62bf4cb3f46c13eed6fde1f192d5ec77be7.png" src="_images/993c0586b91a8a9c27ec7353cf04a62bf4cb3f46c13eed6fde1f192d5ec77be7.png" />
+<img alt="_images/451e20fc6fee1296b06d47941387adba8d7ad2955b77e57177b9ef03204ef217.png" src="_images/451e20fc6fee1296b06d47941387adba8d7ad2955b77e57177b9ef03204ef217.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -715,11 +716,13 @@ SVM: 0.565809 (0.141326)
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLR: 0.754412 (0.067926)
-ScaledLDA: 0.778676 (0.093570)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLDA: 0.778676 (0.093570)
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledKNN: 0.808456 (0.107996)
-ScaledCART: 0.733824 (0.089531)
+ScaledCART: 0.733824 (0.084001)
 ScaledNB: 0.682721 (0.136040)
 ScaledSVM: 0.826103 (0.081814)
 </pre></div>
@@ -740,7 +743,7 @@ ScaledSVM: 0.826103 (0.081814)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/46d8de21e9e43e3c170b747aa6ed472b0066dd164bb764f4ce203b1eaf0ab17d.png" src="_images/46d8de21e9e43e3c170b747aa6ed472b0066dd164bb764f4ce203b1eaf0ab17d.png" />
+<img alt="_images/ff6d3d1b77bf202b5ec543eae26051dda717a8febd518fb62f0af0de82050a0d.png" src="_images/ff6d3d1b77bf202b5ec543eae26051dda717a8febd518fb62f0af0de82050a0d.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -840,13 +843,13 @@ ScaledSVM: 0.826103 (0.081814)
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>AB: 0.782721 (0.072445)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GBM: 0.795956 (0.129819)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GBM: 0.808456 (0.130806)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>RF: 0.802941 (0.086474)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>RF: 0.801838 (0.069025)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ET: 0.825735 (0.096028)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ET: 0.849265 (0.068898)
 </pre></div>
 </div>
 </div>
@@ -919,6 +922,15 @@ weighted avg       0.86      0.86      0.86        42
                 <footer class="prev-next-footer d-print-none">
                   
 <div class="prev-next-area">
+    <a class="left-prev"
+       href="boston-house.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Boston House Prices</p>
+      </div>
+    </a>
 </div>
                 </footer>
               

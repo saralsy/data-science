@@ -6,3 +6,4 @@ root: intro
 chapters:
   - file: iris-data.ipynb
   - file: boston-house.ipynb
+  - file: sonar-mines.ipynb
