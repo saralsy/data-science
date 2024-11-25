@@ -383,7 +383,8 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="boston-house-prices">
 <h1>Boston House Prices<a class="headerlink" href="#boston-house-prices" title="Link to this heading">#</a></h1>
-<p>Regression predictive modeling machine learning problem from end-to-end Python</p>
+<p>Regression predictive modeling machine learning problem from end-to-end Python.</p>
+<p>Tutorial from <a class="reference external" href="https://machinelearningmastery.com/machine-learning-with-python/">https://machinelearningmastery.com/machine-learning-with-python/</a></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Prepare Problem</span>
@@ -455,7 +456,7 @@ document.write(`
 [506 rows x 14 columns]
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_77990/2592008294.py:4: FutureWarning: The &#39;delim_whitespace&#39; keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep=&#39;\s+&#39;`` instead
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_43780/2592008294.py:4: FutureWarning: The &#39;delim_whitespace&#39; keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep=&#39;\s+&#39;`` instead
   dataset = read_csv(filename, names=names, delim_whitespace=True)
 </pre></div>
 </div>
@@ -689,7 +690,7 @@ MEDV     0.249929 -0.381626 -0.468536 -0.507787  0.333461 -0.737663  1.000000
 LASSO: -27.105803 (13.165915)
 EN: -27.923014 (13.156405)
 KNN: -39.808936 (16.507968)
-CART: -29.170954 (20.586483)
+CART: -25.236773 (16.552887)
 SVR: -67.824695 (32.801531)
 </pre></div>
 </div>
@@ -709,7 +710,7 @@ SVR: -67.824695 (32.801531)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/e37aa70d0cd7f4ebdd03bbb6814d30484547f898b6024c454c91bcd5f5dc6e9f.png" src="_images/e37aa70d0cd7f4ebdd03bbb6814d30484547f898b6024c454c91bcd5f5dc6e9f.png" />
+<img alt="_images/95f2b84c275293c2921b94d80e0c0a22de8ecc395f6168a6b8261d7d210db9f1.png" src="_images/95f2b84c275293c2921b94d80e0c0a22de8ecc395f6168a6b8261d7d210db9f1.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -746,7 +747,7 @@ ScaledLASSO: -27.205896 (12.124418)
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledEN: -28.301160 (13.609110)
 ScaledKNN: -21.456867 (15.016218)
-ScaledCART: -26.098034 (19.511233)
+ScaledCART: -27.451209 (18.468880)
 ScaledSVR: -29.570404 (18.052973)
 </pre></div>
 </div>
@@ -761,11 +762,11 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_77990/1115231628.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_43780/1115231628.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
   pyplot.boxplot(results, labels=names)
 </pre></div>
 </div>
-<img alt="_images/30289b9611cc424d8deafc5d5dc1f99efd49cc136cf6852a2e853ae8caf3781f.png" src="_images/30289b9611cc424d8deafc5d5dc1f99efd49cc136cf6852a2e853ae8caf3781f.png" />
+<img alt="_images/b77830065e4febc07356d01b8294ecade0f80224ee0a414c63a307c76ed48d4c.png" src="_images/b77830065e4febc07356d01b8294ecade0f80224ee0a414c63a307c76ed48d4c.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -816,16 +817,16 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledAB: -15.910276 (8.014489)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledAB: -15.882241 (8.636783)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledGBM: -11.136054 (8.671662)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledGBM: -11.079805 (8.703887)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledRF: -12.636756 (9.746246)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledRF: -12.500259 (9.941379)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledET: -9.269178 (6.928335)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledET: -9.278079 (6.991962)
 </pre></div>
 </div>
 </div>
@@ -839,11 +840,11 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_77990/2660017936.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_43780/2660017936.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
   pyplot.boxplot(results, labels=names)
 </pre></div>
 </div>
-<img alt="_images/48e7642a4a8947b4b1879059e15651be51aa068aff554a734e8cbc14b942b80a.png" src="_images/48e7642a4a8947b4b1879059e15651be51aa068aff554a734e8cbc14b942b80a.png" />
+<img alt="_images/99382691b4427b84c7a1016d4746733cfbee411080e1978d95cc8a370628d5e1.png" src="_images/99382691b4427b84c7a1016d4746733cfbee411080e1978d95cc8a370628d5e1.png" />
 </div>
 </div>
 <div class="cell docutils container">

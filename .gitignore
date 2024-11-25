@@ -1,0 +1,8 @@
+# Ignore CSV files
+*.csv
+
+# Ignore specific dataset directories
+/store-sales-time-series-forecasting/data/*.csv
+/store-sales-time-series-forecasting/*.csv
+
+.DS_Store

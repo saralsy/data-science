@@ -7,3 +7,4 @@ chapters:
   - file: iris-data.ipynb
   - file: boston-house.ipynb
   - file: sonar-mines.ipynb
+  - file: store-sales-time-series-forecasting/store-sales.ipynb

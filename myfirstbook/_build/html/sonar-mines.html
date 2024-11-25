@@ -383,6 +383,7 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="connectionist-bench-sonar-mines-vs-rocks">
 <h1>Connectionist Bench (Sonar, Mines vs. Rocks)<a class="headerlink" href="#connectionist-bench-sonar-mines-vs-rocks" title="Link to this heading">#</a></h1>
 <p>The task is to train a network to discriminate between sonar signals bounced off a metal cylinder and those bounced off a roughly cylindrical rock.</p>
+<p>Tutorial from <a class="reference external" href="https://machinelearningmastery.com/machine-learning-with-python/">https://machinelearningmastery.com/machine-learning-with-python/</a></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load libraries</span>
@@ -667,13 +668,11 @@ dtype: int64
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>LR: 0.759926 (0.091145)
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>LDA: 0.778676 (0.093570)
+LDA: 0.778676 (0.093570)
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>KNN: 0.758824 (0.106417)
-CART: 0.764338 (0.103901)
+CART: 0.740074 (0.092089)
 NB: 0.682721 (0.136040)
 SVM: 0.565809 (0.141326)
 </pre></div>
@@ -694,7 +693,7 @@ SVM: 0.565809 (0.141326)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/329c76bcd47dfeb2d427d69a6560c37a42ca1f8451ff500326fa5071140f8c4c.png" src="_images/329c76bcd47dfeb2d427d69a6560c37a42ca1f8451ff500326fa5071140f8c4c.png" />
+<img alt="_images/a8fdd244d78d7111f60186b539c8d0a26dc82ae9927adf44dd9c420c8a77d586.png" src="_images/a8fdd244d78d7111f60186b539c8d0a26dc82ae9927adf44dd9c420c8a77d586.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -722,13 +721,11 @@ SVM: 0.565809 (0.141326)
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLR: 0.754412 (0.067926)
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLDA: 0.778676 (0.093570)
+ScaledLDA: 0.778676 (0.093570)
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledKNN: 0.808456 (0.107996)
-ScaledCART: 0.740441 (0.074174)
+ScaledCART: 0.716912 (0.100617)
 ScaledNB: 0.682721 (0.136040)
 ScaledSVM: 0.826103 (0.081814)
 </pre></div>
@@ -749,7 +746,7 @@ ScaledSVM: 0.826103 (0.081814)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/96ec7be19d3f7cb1a1c7295c05a1122c8a83d7ebf913cecb4b5b3542b2bf5817.png" src="_images/96ec7be19d3f7cb1a1c7295c05a1122c8a83d7ebf913cecb4b5b3542b2bf5817.png" />
+<img alt="_images/82fd6861b5f9d62240b55a3df335d7a0a361bc325219eb6b2c95a870dd00a2f0.png" src="_images/82fd6861b5f9d62240b55a3df335d7a0a361bc325219eb6b2c95a870dd00a2f0.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -849,13 +846,13 @@ ScaledSVM: 0.826103 (0.081814)
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>AB: 0.782721 (0.072445)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GBM: 0.796324 (0.144061)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GBM: 0.808088 (0.110720)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>RF: 0.826838 (0.092622)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>RF: 0.826103 (0.089378)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ET: 0.844118 (0.083920)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ET: 0.862132 (0.080602)
 </pre></div>
 </div>
 </div>
