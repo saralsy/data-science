@@ -61,6 +61,7 @@
     <link rel="icon" href="../_static/icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Titanic Survival Prediction using Decision Trees" href="../titanic-decision-tree/titanic-decision-tree.html" />
     <link rel="prev" title="Connectionist Bench (Sonar, Mines vs. Rocks)" href="../sonar-mines.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -184,6 +185,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../boston-house.html">Boston House Prices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../sonar-mines.html">Connectionist Bench (Sonar, Mines vs. Rocks)</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Store Sales - Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../titanic-decision-tree/titanic-decision-tree.html">Titanic Survival Prediction using Decision Trees</a></li>
 </ul>
 
     </div>
@@ -426,28 +428,43 @@ document.write(`
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load all datasets</span>
 <span class="n">train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/train.csv&#39;</span><span class="p">)</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/test.csv&#39;</span><span class="p">)</span>
+
 <span class="n">stores</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/stores.csv&#39;</span><span class="p">)</span>
+<span class="n">stores</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;store_type&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
 <span class="n">oil</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/oil.csv&#39;</span><span class="p">)</span>
+
 <span class="n">holidays</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/holidays_events.csv&#39;</span><span class="p">)</span>
+<span class="n">holidays</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;holiday_type&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">transactions</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/transactions.csv&#39;</span><span class="p">)</span>
+
+<span class="c1"># add the dataset column to the train and test dataframes</span>
+<span class="n">train</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;train&#39;</span>
+<span class="n">test</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;test&#39;</span>
+
+<span class="c1"># concatenate the train and test dataframes to simplify preprocessing and ensure consistent feature engineering</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">train</span><span class="p">,</span> <span class="n">test</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <span class="c1"># Convert date columns</span>
-<span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
 <span class="n">oil</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">oil</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
 <span class="n">holidays</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">holidays</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
-
+<span class="n">transactions</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">transactions</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
 <span class="c1"># Basic information and statistics</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">info</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
 
 <span class="c1"># Check for missing values</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">train</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
-RangeIndex: 3000888 entries, 0 to 3000887
-Data columns (total 6 columns):
+RangeIndex: 3029400 entries, 0 to 3029399
+Data columns (total 7 columns):
  #   Column       Dtype         
 ---  ------       -----         
  0   id           int64         
@@ -456,44 +473,2003 @@ Data columns (total 6 columns):
  3   family       object        
  4   sales        float64       
  5   onpromotion  int64         
-dtypes: datetime64[ns](1), float64(1), int64(3), object(1)
-memory usage: 137.4+ MB
+ 6   dataset      object        
+dtypes: datetime64[ns](1), float64(1), int64(3), object(2)
+memory usage: 161.8+ MB
 None
-                 id                           date     store_nbr  \
-count  3.000888e+06                        3000888  3.000888e+06   
-mean   1.500444e+06  2015-04-24 08:27:04.703088384  2.750000e+01   
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>                 id                           date     store_nbr  \
+count  3.029400e+06                        3029400  3.029400e+06   
+mean   1.514700e+06  2015-05-02 08:56:11.294118144  2.750000e+01   
 min    0.000000e+00            2013-01-01 00:00:00  1.000000e+00   
-25%    7.502218e+05            2014-02-26 18:00:00  1.400000e+01   
-50%    1.500444e+06            2015-04-24 12:00:00  2.750000e+01   
-75%    2.250665e+06            2016-06-19 06:00:00  4.100000e+01   
-max    3.000887e+06            2017-08-15 00:00:00  5.400000e+01   
-std    8.662819e+05                            NaN  1.558579e+01   
+25%    7.573498e+05            2014-03-02 18:00:00  1.400000e+01   
+50%    1.514700e+06            2015-05-02 12:00:00  2.750000e+01   
+75%    2.272049e+06            2016-07-01 06:00:00  4.100000e+01   
+max    3.029399e+06            2017-08-31 00:00:00  5.400000e+01   
+std    8.745126e+05                            NaN  1.558579e+01   
 
               sales   onpromotion  
-count  3.000888e+06  3.000888e+06  
-mean   3.577757e+02  2.602770e+00  
+count  3.000888e+06  3.029400e+06  
+mean   3.577757e+02  2.643830e+00  
 min    0.000000e+00  0.000000e+00  
 25%    0.000000e+00  0.000000e+00  
 50%    1.100000e+01  0.000000e+00  
 75%    1.958473e+02  0.000000e+00  
 max    1.247170e+05  7.410000e+02  
-std    1.101998e+03  1.221888e+01  
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>id             0
-date           0
-store_nbr      0
-family         0
-sales          0
-onpromotion    0
+std    1.101998e+03  1.233287e+01  
+id                 0
+date               0
+store_nbr          0
+family             0
+sales          28512
+onpromotion        0
+dataset            0
 dtype: int64
 </pre></div>
 </div>
 </div>
 </div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3000888</td>
+      <td>2017-08-16</td>
+      <td>1</td>
+      <td>AUTOMOTIVE</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>3000889</td>
+      <td>2017-08-16</td>
+      <td>1</td>
+      <td>BABY CARE</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3000890</td>
+      <td>2017-08-16</td>
+      <td>1</td>
+      <td>BEAUTY</td>
+      <td>2</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3000891</td>
+      <td>2017-08-16</td>
+      <td>1</td>
+      <td>BEVERAGES</td>
+      <td>20</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3000892</td>
+      <td>2017-08-16</td>
+      <td>1</td>
+      <td>BOOKS</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">test</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>28507</th>
+      <td>3029395</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>POULTRY</td>
+      <td>1</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>28508</th>
+      <td>3029396</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>PREPARED FOODS</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>28509</th>
+      <td>3029397</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>PRODUCE</td>
+      <td>1</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>28510</th>
+      <td>3029398</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>SCHOOL AND OFFICE SUPPLIES</td>
+      <td>9</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>28511</th>
+      <td>3029399</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>SEAFOOD</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>sales</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>AUTOMOTIVE</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BABY CARE</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BEAUTY</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BEVERAGES</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BOOKS</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>3029395</th>
+      <td>3029395</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>POULTRY</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>3029396</th>
+      <td>3029396</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>PREPARED FOODS</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>3029397</th>
+      <td>3029397</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>PRODUCE</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>3029398</th>
+      <td>3029398</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>SCHOOL AND OFFICE SUPPLIES</td>
+      <td>NaN</td>
+      <td>9</td>
+      <td>test</td>
+    </tr>
+    <tr>
+      <th>3029399</th>
+      <td>3029399</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>SEAFOOD</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>test</td>
+    </tr>
+  </tbody>
+</table>
+<p>3029400 rows × 7 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">holidays</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>holiday_type</th>
+      <th>locale</th>
+      <th>locale_name</th>
+      <th>description</th>
+      <th>transferred</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2012-03-02</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Manta</td>
+      <td>Fundacion de Manta</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2012-04-01</td>
+      <td>Holiday</td>
+      <td>Regional</td>
+      <td>Cotopaxi</td>
+      <td>Provincializacion de Cotopaxi</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2012-04-12</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Cuenca</td>
+      <td>Fundacion de Cuenca</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2012-04-14</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Libertad</td>
+      <td>Cantonizacion de Libertad</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2012-04-21</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Riobamba</td>
+      <td>Cantonizacion de Riobamba</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>345</th>
+      <td>2017-12-22</td>
+      <td>Additional</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Navidad-3</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>346</th>
+      <td>2017-12-23</td>
+      <td>Additional</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Navidad-2</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>347</th>
+      <td>2017-12-24</td>
+      <td>Additional</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Navidad-1</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>348</th>
+      <td>2017-12-25</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Navidad</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>349</th>
+      <td>2017-12-26</td>
+      <td>Additional</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Navidad+1</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<p>350 rows × 6 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">holidays</span><span class="p">[</span><span class="n">holidays</span><span class="p">[</span><span class="s1">&#39;transferred&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>holiday_type</th>
+      <th>locale</th>
+      <th>locale_name</th>
+      <th>description</th>
+      <th>transferred</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>19</th>
+      <td>2012-10-09</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Independencia de Guayaquil</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>72</th>
+      <td>2013-10-09</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Independencia de Guayaquil</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>135</th>
+      <td>2014-10-09</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Independencia de Guayaquil</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>255</th>
+      <td>2016-05-24</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Batalla de Pichincha</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>266</th>
+      <td>2016-07-25</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Guayaquil</td>
+      <td>Fundacion de Guayaquil</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>268</th>
+      <td>2016-08-10</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer Grito de Independencia</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>297</th>
+      <td>2017-01-01</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer dia del ano</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>303</th>
+      <td>2017-04-12</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Cuenca</td>
+      <td>Fundacion de Cuenca</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>312</th>
+      <td>2017-05-24</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Batalla de Pichincha</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>324</th>
+      <td>2017-08-10</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer Grito de Independencia</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>328</th>
+      <td>2017-09-28</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Ibarra</td>
+      <td>Fundacion de Ibarra</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>340</th>
+      <td>2017-12-06</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Quito</td>
+      <td>Fundacion de Quito</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">holidays</span><span class="p">[</span><span class="n">holidays</span><span class="p">[</span><span class="s1">&#39;holiday_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Transfer&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>holiday_type</th>
+      <th>locale</th>
+      <th>locale_name</th>
+      <th>description</th>
+      <th>transferred</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>20</th>
+      <td>2012-10-12</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Independencia de Guayaquil</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>73</th>
+      <td>2013-10-11</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Independencia de Guayaquil</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>136</th>
+      <td>2014-10-10</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Independencia de Guayaquil</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>256</th>
+      <td>2016-05-27</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Batalla de Pichincha</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>265</th>
+      <td>2016-07-24</td>
+      <td>Transfer</td>
+      <td>Local</td>
+      <td>Guayaquil</td>
+      <td>Traslado Fundacion de Guayaquil</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>269</th>
+      <td>2016-08-12</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Primer Grito de Independencia</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>298</th>
+      <td>2017-01-02</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Primer dia del ano</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>304</th>
+      <td>2017-04-13</td>
+      <td>Transfer</td>
+      <td>Local</td>
+      <td>Cuenca</td>
+      <td>Fundacion de Cuenca</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>313</th>
+      <td>2017-05-26</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Batalla de Pichincha</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>325</th>
+      <td>2017-08-11</td>
+      <td>Transfer</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Traslado Primer Grito de Independencia</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>329</th>
+      <td>2017-09-29</td>
+      <td>Transfer</td>
+      <td>Local</td>
+      <td>Ibarra</td>
+      <td>Fundacion de Ibarra</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>342</th>
+      <td>2017-12-08</td>
+      <td>Transfer</td>
+      <td>Local</td>
+      <td>Quito</td>
+      <td>Traslado Fundacion de Quito</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stores</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>store_nbr</th>
+      <th>city</th>
+      <th>state</th>
+      <th>store_type</th>
+      <th>cluster</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>5</td>
+      <td>Santo Domingo</td>
+      <td>Santo Domingo de los Tsachilas</td>
+      <td>D</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">oil</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>dcoilwtico</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2013-01-01</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2013-01-02</td>
+      <td>93.14</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2013-01-03</td>
+      <td>92.97</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2013-01-04</td>
+      <td>93.12</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2013-01-07</td>
+      <td>93.20</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">oil</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>dcoilwtico</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1213</th>
+      <td>2017-08-25</td>
+      <td>47.65</td>
+    </tr>
+    <tr>
+      <th>1214</th>
+      <td>2017-08-28</td>
+      <td>46.40</td>
+    </tr>
+    <tr>
+      <th>1215</th>
+      <td>2017-08-29</td>
+      <td>46.46</td>
+    </tr>
+    <tr>
+      <th>1216</th>
+      <td>2017-08-30</td>
+      <td>45.96</td>
+    </tr>
+    <tr>
+      <th>1217</th>
+      <td>2017-08-31</td>
+      <td>47.26</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transactions</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>transactions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2013-01-01</td>
+      <td>25</td>
+      <td>770</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2013-01-02</td>
+      <td>1</td>
+      <td>2111</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2013-01-02</td>
+      <td>2</td>
+      <td>2358</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2013-01-02</td>
+      <td>3</td>
+      <td>3487</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2013-01-02</td>
+      <td>4</td>
+      <td>1922</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
 <ol class="arabic simple" start="3">
 <li><p>Data Preprocessing</p></li>
 </ol>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Combine all the data</span>
+<span class="k">def</span> <span class="nf">combine_data</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">stores</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;store_nbr&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">oil</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">holidays</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">transactions</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;store_nbr&#39;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">combine_data</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>sales</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+      <th>city</th>
+      <th>state</th>
+      <th>store_type</th>
+      <th>cluster</th>
+      <th>dcoilwtico</th>
+      <th>holiday_type</th>
+      <th>locale</th>
+      <th>locale_name</th>
+      <th>description</th>
+      <th>transferred</th>
+      <th>transactions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2215381</th>
+      <td>2181345</td>
+      <td>2016-05-12</td>
+      <td>14</td>
+      <td>GROCERY I</td>
+      <td>2197.0</td>
+      <td>50</td>
+      <td>train</td>
+      <td>Riobamba</td>
+      <td>Chimborazo</td>
+      <td>C</td>
+      <td>7</td>
+      <td>46.64</td>
+      <td>Event</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Terremoto Manabi+26</td>
+      <td>False</td>
+      <td>1223.0</td>
+    </tr>
+    <tr>
+      <th>173364</th>
+      <td>173364</td>
+      <td>2013-04-08</td>
+      <td>23</td>
+      <td>HOME AND KITCHEN I</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Ambato</td>
+      <td>Tungurahua</td>
+      <td>D</td>
+      <td>9</td>
+      <td>93.36</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1174.0</td>
+    </tr>
+    <tr>
+      <th>3035383</th>
+      <td>2981923</td>
+      <td>2017-08-05</td>
+      <td>27</td>
+      <td>EGGS</td>
+      <td>260.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Daule</td>
+      <td>Guayas</td>
+      <td>D</td>
+      <td>1</td>
+      <td>NaN</td>
+      <td>Holiday</td>
+      <td>Local</td>
+      <td>Esmeraldas</td>
+      <td>Fundacion de Esmeraldas</td>
+      <td>False</td>
+      <td>1862.0</td>
+    </tr>
+    <tr>
+      <th>678331</th>
+      <td>669421</td>
+      <td>2014-01-12</td>
+      <td>41</td>
+      <td>HOME AND KITCHEN II</td>
+      <td>14.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Machala</td>
+      <td>El Oro</td>
+      <td>D</td>
+      <td>4</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1118.0</td>
+    </tr>
+    <tr>
+      <th>84434</th>
+      <td>84434</td>
+      <td>2013-02-17</td>
+      <td>28</td>
+      <td>LAWN AND GARDEN</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Guayaquil</td>
+      <td>Guayas</td>
+      <td>E</td>
+      <td>10</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>1176.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># identify missing values in each column</span>
+<span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>id                    0
+date                  0
+store_nbr             0
+family                0
+sales             28512
+onpromotion           0
+dataset               0
+city                  0
+state                 0
+store_type            0
+cluster               0
+dcoilwtico       962280
+holiday_type    2578554
+locale          2578554
+locale_name     2578554
+description     2578554
+transferred     2578554
+transactions     277629
+dtype: int64
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># handle missing values </span>
+<span class="k">def</span> <span class="nf">handle_missing_values</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle missing values in the dataframe&quot;&quot;&quot;</span>
+
+    <span class="c1"># fill missing values in oil with the last observation carried forward</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dcoilwtico&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;dcoilwtico&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ffill&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;bfill&#39;</span><span class="p">)</span>
+
+    <span class="c1"># fill missing values for holiday type</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;holiday_type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;holiday_type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s1">&#39;Not Holiday&#39;</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;transferred&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;transferred&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;holiday_type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Not Holiday&#39;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;transferred&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">handle_missing_values</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84507/1625405876.py:6: FutureWarning: Series.fillna with &#39;method&#39; is deprecated and will raise in a future version. Use obj.ffill() or obj.bfill() instead.
+  df[&#39;dcoilwtico&#39;] = df[&#39;dcoilwtico&#39;].fillna(method=&#39;ffill&#39;).fillna(method=&#39;bfill&#39;)
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84507/1625405876.py:10: FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior, set `pd.set_option(&#39;future.no_silent_downcasting&#39;, True)`
+  df[&#39;transferred&#39;] = df[&#39;transferred&#39;].fillna(True)
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>sales</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+      <th>city</th>
+      <th>state</th>
+      <th>store_type</th>
+      <th>cluster</th>
+      <th>dcoilwtico</th>
+      <th>holiday_type</th>
+      <th>locale</th>
+      <th>locale_name</th>
+      <th>description</th>
+      <th>transferred</th>
+      <th>transactions</th>
+      <th>is_holiday</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>983179</th>
+      <td>968923</td>
+      <td>2014-06-29</td>
+      <td>45</td>
+      <td>EGGS</td>
+      <td>686.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>A</td>
+      <td>11</td>
+      <td>106.46</td>
+      <td>Event</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Mundial de futbol Brasil: Octavos de Final</td>
+      <td>False</td>
+      <td>4238.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>302505</th>
+      <td>300723</td>
+      <td>2013-06-18</td>
+      <td>46</td>
+      <td>PLAYERS AND ELECTRONICS</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>A</td>
+      <td>14</td>
+      <td>98.46</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>2788.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1946808</th>
+      <td>1921860</td>
+      <td>2015-12-17</td>
+      <td>33</td>
+      <td>CELEBRATION</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quevedo</td>
+      <td>Los Rios</td>
+      <td>C</td>
+      <td>3</td>
+      <td>34.98</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>972.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1157335</th>
+      <td>1141297</td>
+      <td>2014-10-04</td>
+      <td>31</td>
+      <td>PERSONAL CARE</td>
+      <td>316.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Babahoyo</td>
+      <td>Los Rios</td>
+      <td>B</td>
+      <td>10</td>
+      <td>89.76</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>1509.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1078821</th>
+      <td>1062783</td>
+      <td>2014-08-21</td>
+      <td>29</td>
+      <td>HOME CARE</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Guayaquil</td>
+      <td>Guayas</td>
+      <td>E</td>
+      <td>10</td>
+      <td>93.97</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>NaN</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># identify missing values in each column</span>
+<span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>id                    0
+date                  0
+store_nbr             0
+family                0
+sales             28512
+onpromotion           0
+dataset               0
+city                  0
+state                 0
+store_type            0
+cluster               0
+dcoilwtico            0
+holiday_type          0
+locale          2578554
+locale_name     2578554
+description     2578554
+transferred           0
+transactions     277629
+is_holiday            0
+dtype: int64
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">transactions</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>transactions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>83483</th>
+      <td>2017-08-15</td>
+      <td>50</td>
+      <td>2804</td>
+    </tr>
+    <tr>
+      <th>83484</th>
+      <td>2017-08-15</td>
+      <td>51</td>
+      <td>1573</td>
+    </tr>
+    <tr>
+      <th>83485</th>
+      <td>2017-08-15</td>
+      <td>52</td>
+      <td>2255</td>
+    </tr>
+    <tr>
+      <th>83486</th>
+      <td>2017-08-15</td>
+      <td>53</td>
+      <td>932</td>
+    </tr>
+    <tr>
+      <th>83487</th>
+      <td>2017-08-15</td>
+      <td>54</td>
+      <td>802</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check for missing values in the &#39;transactions&#39; column</span>
+<span class="n">missing_transactions</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;transactions&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span>
+<span class="n">missing_transactions</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>sales</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+      <th>city</th>
+      <th>state</th>
+      <th>store_type</th>
+      <th>cluster</th>
+      <th>dcoilwtico</th>
+      <th>holiday_type</th>
+      <th>locale</th>
+      <th>locale_name</th>
+      <th>description</th>
+      <th>transferred</th>
+      <th>transactions</th>
+      <th>is_holiday</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>AUTOMOTIVE</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+      <td>93.14</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer dia del ano</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BABY CARE</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+      <td>93.14</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer dia del ano</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BEAUTY</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+      <td>93.14</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer dia del ano</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BEVERAGES</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+      <td>93.14</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer dia del ano</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>2013-01-01</td>
+      <td>1</td>
+      <td>BOOKS</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>D</td>
+      <td>13</td>
+      <td>93.14</td>
+      <td>Holiday</td>
+      <td>National</td>
+      <td>Ecuador</td>
+      <td>Primer dia del ano</td>
+      <td>False</td>
+      <td>NaN</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>3082855</th>
+      <td>3029395</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>POULTRY</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>test</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>6</td>
+      <td>47.26</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>NaN</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3082856</th>
+      <td>3029396</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>PREPARED FOODS</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>test</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>6</td>
+      <td>47.26</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>NaN</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3082857</th>
+      <td>3029397</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>PRODUCE</td>
+      <td>NaN</td>
+      <td>1</td>
+      <td>test</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>6</td>
+      <td>47.26</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>NaN</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3082858</th>
+      <td>3029398</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>SCHOOL AND OFFICE SUPPLIES</td>
+      <td>NaN</td>
+      <td>9</td>
+      <td>test</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>6</td>
+      <td>47.26</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>NaN</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>3082859</th>
+      <td>3029399</td>
+      <td>2017-08-31</td>
+      <td>9</td>
+      <td>SEAFOOD</td>
+      <td>NaN</td>
+      <td>0</td>
+      <td>test</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>6</td>
+      <td>47.26</td>
+      <td>Not Holiday</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>True</td>
+      <td>NaN</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<p>277629 rows × 19 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">drop_columns</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop columns that are not needed&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;transferred&#39;</span><span class="p">,</span> <span class="s1">&#39;locale&#39;</span><span class="p">,</span> <span class="s1">&#39;locale_name&#39;</span><span class="p">,</span> <span class="s1">&#39;transferred&#39;</span><span class="p">,</span> <span class="s1">&#39;transactions&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">drop_columns</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>sales</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+      <th>city</th>
+      <th>state</th>
+      <th>store_type</th>
+      <th>cluster</th>
+      <th>dcoilwtico</th>
+      <th>holiday_type</th>
+      <th>is_holiday</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1487597</th>
+      <td>1467995</td>
+      <td>2015-04-06</td>
+      <td>48</td>
+      <td>MAGAZINES</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>A</td>
+      <td>14</td>
+      <td>52.08</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2252532</th>
+      <td>2216892</td>
+      <td>2016-06-01</td>
+      <td>11</td>
+      <td>HOME CARE</td>
+      <td>621.0</td>
+      <td>4</td>
+      <td>train</td>
+      <td>Cayambe</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>6</td>
+      <td>49.07</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>140269</th>
+      <td>140269</td>
+      <td>2013-03-20</td>
+      <td>44</td>
+      <td>LADIESWEAR</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>A</td>
+      <td>5</td>
+      <td>93.21</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1911868</th>
+      <td>1886920</td>
+      <td>2015-11-27</td>
+      <td>52</td>
+      <td>GROCERY II</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Manta</td>
+      <td>Manabi</td>
+      <td>A</td>
+      <td>11</td>
+      <td>40.57</td>
+      <td>Event</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>2647452</th>
+      <td>2601120</td>
+      <td>2017-01-03</td>
+      <td>41</td>
+      <td>PLAYERS AND ELECTRONICS</td>
+      <td>15.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Machala</td>
+      <td>El Oro</td>
+      <td>D</td>
+      <td>4</td>
+      <td>52.36</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># identify missing values in each column</span>
+<span class="n">df</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>id                  0
+date                0
+store_nbr           0
+family              0
+sales           28512
+onpromotion         0
+dataset             0
+city                0
+state               0
+store_type          0
+cluster             0
+dcoilwtico          0
+holiday_type        0
+is_holiday          0
+dtype: int64
+</pre></div>
+</div>
+</div>
+</div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic Time Features</span>
@@ -501,42 +2477,194 @@ dtype: int64
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create basic time-based features&quot;&quot;&quot;</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)</span>
 
-    <span class="c1"># Check for missing values in the date column</span>
-    <span class="n">missing_dates</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Missing date values: </span><span class="si">{</span><span class="n">missing_dates</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Handle missing values if any</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;bfill&#39;</span><span class="p">)</span> <span class="c1"># Backward fill</span>
-
-
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofweek</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;is_weekend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;is_weekend&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;week_of_year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">isocalendar</span><span class="p">()</span><span class="o">.</span><span class="n">week</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofyear</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;quarter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">quarter</span>
     
     <span class="c1"># Paydays (15th and last day of month)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;is_payday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_month&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">15</span><span class="p">)</span> <span class="o">|</span> 
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;is_payday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">((</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">15</span><span class="p">)</span> <span class="o">|</span> 
                        <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">is_month_end</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    
+
     <span class="k">return</span> <span class="n">df</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">create_time_features</span><span class="p">(</span><span class="n">train</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">create_time_features</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Missing date values: 0
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_48486/511463118.py:11: FutureWarning: Series.fillna with &#39;method&#39; is deprecated and will raise in a future version. Use obj.ffill() or obj.bfill() instead.
-  df[&#39;date&#39;] = df[&#39;date&#39;].fillna(method=&#39;bfill&#39;) # Backward fill
-</pre></div>
-</div>
-</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>date</th>
+      <th>store_nbr</th>
+      <th>family</th>
+      <th>sales</th>
+      <th>onpromotion</th>
+      <th>dataset</th>
+      <th>city</th>
+      <th>state</th>
+      <th>store_type</th>
+      <th>...</th>
+      <th>holiday_type</th>
+      <th>is_holiday</th>
+      <th>year</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>is_weekend</th>
+      <th>week_of_year</th>
+      <th>day_of_year</th>
+      <th>quarter</th>
+      <th>is_payday</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>970605</th>
+      <td>960797</td>
+      <td>2014-06-25</td>
+      <td>18</td>
+      <td>BEAUTY</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>B</td>
+      <td>...</td>
+      <td>Holiday</td>
+      <td>True</td>
+      <td>2014</td>
+      <td>6</td>
+      <td>2</td>
+      <td>False</td>
+      <td>26</td>
+      <td>176</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>563901</th>
+      <td>556773</td>
+      <td>2013-11-09</td>
+      <td>30</td>
+      <td>PRODUCE</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Guayaquil</td>
+      <td>Guayas</td>
+      <td>C</td>
+      <td>...</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+      <td>2013</td>
+      <td>11</td>
+      <td>5</td>
+      <td>True</td>
+      <td>45</td>
+      <td>313</td>
+      <td>4</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2895270</th>
+      <td>2847156</td>
+      <td>2017-05-21</td>
+      <td>45</td>
+      <td>HOME AND KITCHEN I</td>
+      <td>77.0</td>
+      <td>2</td>
+      <td>train</td>
+      <td>Quito</td>
+      <td>Pichincha</td>
+      <td>A</td>
+      <td>...</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+      <td>2017</td>
+      <td>5</td>
+      <td>6</td>
+      <td>True</td>
+      <td>20</td>
+      <td>141</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>976977</th>
+      <td>962721</td>
+      <td>2014-06-26</td>
+      <td>21</td>
+      <td>GROCERY I</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Santo Domingo</td>
+      <td>Santo Domingo de los Tsachilas</td>
+      <td>B</td>
+      <td>...</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+      <td>2014</td>
+      <td>6</td>
+      <td>3</td>
+      <td>False</td>
+      <td>26</td>
+      <td>177</td>
+      <td>2</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2682101</th>
+      <td>2635769</td>
+      <td>2017-01-23</td>
+      <td>14</td>
+      <td>PET SUPPLIES</td>
+      <td>0.0</td>
+      <td>0</td>
+      <td>train</td>
+      <td>Riobamba</td>
+      <td>Chimborazo</td>
+      <td>C</td>
+      <td>...</td>
+      <td>Not Holiday</td>
+      <td>False</td>
+      <td>2017</td>
+      <td>1</td>
+      <td>0</td>
+      <td>False</td>
+      <td>4</td>
+      <td>23</td>
+      <td>1</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 22 columns</p>
+</div></div></div>
 </div>
 <ol class="arabic simple" start="4">
 <li><p>Exploratory Data Analysis (EDA)</p></li>
@@ -544,62 +2672,66 @@ dtype: int64
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot overall sales trend</span>
+<span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">])</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">])</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sales Over Time&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Date&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Sales&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <span class="c1"># Monthly sales patterns</span>
-<span class="n">monthly_sales</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">monthly_sales</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">5</span><span class="p">))</span>
 <span class="n">monthly_sales</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Average Sales by Month&#39;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
 <span class="c1"># Decompose time series</span>
-<span class="n">decomposition</span> <span class="o">=</span> <span class="n">seasonal_decompose</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">period</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># adjust period as needed</span>
+<span class="n">decomposition</span> <span class="o">=</span> <span class="n">seasonal_decompose</span><span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">period</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>  <span class="c1"># adjust period as needed</span>
 <span class="n">decomposition</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/45c410741f9cbb4f0fb51efaf54f43dc5a0d6a126e7e6a1748d0386ae9afb753.png" src="../_images/45c410741f9cbb4f0fb51efaf54f43dc5a0d6a126e7e6a1748d0386ae9afb753.png" />
-<img alt="../_images/7163f85ebcb60e3fdad03cf3bfd201b1a7fc448c50ce3af4e3bb852df6d29875.png" src="../_images/7163f85ebcb60e3fdad03cf3bfd201b1a7fc448c50ce3af4e3bb852df6d29875.png" />
-<img alt="../_images/64ab27e7fbce6ec67f111de94caa12b070e36b49f8e3a12451d7a5f286047eb3.png" src="../_images/64ab27e7fbce6ec67f111de94caa12b070e36b49f8e3a12451d7a5f286047eb3.png" />
+<img alt="../_images/07692c50fd52f670c30280dc906a1cac39f05c0df9c40b78954228449012e6c4.png" src="../_images/07692c50fd52f670c30280dc906a1cac39f05c0df9c40b78954228449012e6c4.png" />
+<img alt="../_images/e2ba11d447cf2c7b2d8e32681896b0b2c44110c55be3251048f9947a9b95ad27.png" src="../_images/e2ba11d447cf2c7b2d8e32681896b0b2c44110c55be3251048f9947a9b95ad27.png" />
+<img alt="../_images/c10934be7c6834d2b502368500feb06bd58454a0cc8de6d533ebecdf56168631.png" src="../_images/c10934be7c6834d2b502368500feb06bd58454a0cc8de6d533ebecdf56168631.png" />
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 2. Basic Sales Analysis</span>
+<span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+
 <span class="k">def</span> <span class="nf">analyze_sales_patterns</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze basic sales patterns&quot;&quot;&quot;</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
     
     <span class="c1"># Overall sales trend</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">daily_sales</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">daily_sales</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="n">daily_sales</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Daily Total Sales&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
     
     <span class="c1"># Sales by day of week</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">train</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofweek</span>
-    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">)</span>
+    <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofweek</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sales by Day of Week&#39;</span><span class="p">)</span>
     
     <span class="c1"># Sales distribution</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-    <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sales Distribution&#39;</span><span class="p">)</span>
     
     <span class="c1"># Monthly sales pattern</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-    <span class="n">train</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
-    <span class="n">monthly_sales</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
+    <span class="n">monthly_sales</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">monthly_sales</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Average Sales by Month&#39;</span><span class="p">)</span>
     
@@ -615,7 +2747,23 @@ dtype: int64
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Analyzing sales patterns...
 </pre></div>
 </div>
-<img alt="../_images/fdfd4c2f76159580ee6502ccb4154a31fdb5d3b4a6152acb97af054e63c2b615.png" src="../_images/fdfd4c2f76159580ee6502ccb4154a31fdb5d3b4a6152acb97af054e63c2b615.png" />
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84507/1383474932.py:17: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_train[&#39;day_of_week&#39;] = df_train[&#39;date&#39;].dt.dayofweek
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84507/1383474932.py:28: SettingWithCopyWarning: 
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  df_train[&#39;month&#39;] = df_train[&#39;date&#39;].dt.month
+</pre></div>
+</div>
+<img alt="../_images/2a60e54ceebd50083784c84051139d91d098e02b067756fb97018907eec28134.png" src="../_images/2a60e54ceebd50083784c84051139d91d098e02b067756fb97018907eec28134.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -623,27 +2771,26 @@ dtype: int64
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 3. Store Analysis</span>
 <span class="k">def</span> <span class="nf">analyze_store_impact</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze how store characteristics affect sales&quot;&quot;&quot;</span>
-    <span class="c1"># Merge store data</span>
-    <span class="n">store_sales</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">stores</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;store_nbr&#39;</span><span class="p">)</span>
-    
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
     
     <span class="c1"># Sales by store type</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">store_sales</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;store_type&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sales by Store Type&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
     
     <span class="c1"># Sales by cluster</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-    <span class="n">cluster_sales</span> <span class="o">=</span> <span class="n">store_sales</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;cluster&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
+    <span class="n">cluster_sales</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;cluster&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
     <span class="n">cluster_sales</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Average Sales by Cluster&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
     
     <span class="c1"># Sales by city</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-    <span class="n">city_sales</span> <span class="o">=</span> <span class="n">store_sales</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;city&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
+    <span class="n">city_sales</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;city&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)[:</span><span class="mi">10</span><span class="p">]</span>
     <span class="n">city_sales</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 Cities by Average Sales&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
@@ -652,7 +2799,7 @@ dtype: int64
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
     <span class="c1"># Calculate store metrics</span>
-    <span class="n">store_metrics</span> <span class="o">=</span> <span class="n">store_sales</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;store_nbr&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span>
+    <span class="n">store_metrics</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;store_nbr&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span>
         <span class="s1">&#39;sales&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">],</span>
         <span class="s1">&#39;onpromotion&#39;</span><span class="p">:</span> <span class="s1">&#39;mean&#39;</span>
     <span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -670,16 +2817,16 @@ dtype: int64
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Analyzing store impact...
 </pre></div>
 </div>
-<img alt="../_images/50aaf802b2d9846bca7151e62ce01d423ed4a0df7b740b95385e344b5157e1f2.png" src="../_images/50aaf802b2d9846bca7151e62ce01d423ed4a0df7b740b95385e344b5157e1f2.png" />
+<img alt="../_images/462fb7c3b020a25411b1e94c6677d38d18b50a8b540bf7e7e07200245c667833.png" src="../_images/462fb7c3b020a25411b1e94c6677d38d18b50a8b540bf7e7e07200245c667833.png" />
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Store metrics summary:
             sales                 onpromotion
              mean      std  count        mean
 store_nbr                                    
-1          254.53   596.83  55572        2.48
-2          387.92  1079.56  55572        2.85
-3          908.41  2146.19  55572        3.19
-4          340.27   801.13  55572        2.73
-5          280.58   652.59  55572        2.69
+1          254.65   597.11  56562        2.48
+2          389.43  1083.07  56562        2.85
+3          911.10  2152.14  56562        3.19
+4          341.31   803.42  56562        2.74
+5          281.18   654.14  56562        2.70
 </pre></div>
 </div>
 </div>
@@ -770,23 +2917,49 @@ LADIESWEAR       7.160629     0.018475           387.594643
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Analyzing promotions...
 </pre></div>
 </div>
-<img alt="../_images/4db2dc31d4551000849f0802ee4705417ad4aa741ad6fe5bbd07007904cca5e4.png" src="../_images/4db2dc31d4551000849f0802ee4705417ad4aa741ad6fe5bbd07007904cca5e4.png" />
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Promotion impact summary:
-                    mean    count          std
-onpromotion                                   
-0             158.246681  2389559   614.894451
-1             467.556532   174551   971.815817
-2             662.925632    79386  1146.456129
-3             871.408092    45862  1421.446624
-4             969.916135    31659  1549.074833
-...                  ...      ...          ...
-719          6681.000000        1          NaN
-720          6154.000000        1          NaN
-722          5846.000000        1          NaN
-726          6044.000000        1          NaN
-741          7517.000000        1          NaN
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">AttributeError</span><span class="g g-Whitespace">                            </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">28</span><span class="p">],</span> <span class="n">line</span> <span class="mi">19</span>
+<span class="g g-Whitespace">     </span><span class="mi">16</span>     <span class="k">return</span> <span class="n">promo_impact</span>
+<span class="g g-Whitespace">     </span><span class="mi">18</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Analyzing promotions...&quot;</span><span class="p">)</span>
+<span class="ne">---&gt; </span><span class="mi">19</span> <span class="n">promo_impact</span> <span class="o">=</span> <span class="n">analyze_promotions</span><span class="p">()</span>
+<span class="g g-Whitespace">     </span><span class="mi">20</span> <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Promotion impact summary:&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">21</span> <span class="nb">print</span><span class="p">(</span><span class="n">promo_impact</span><span class="p">)</span>
 
-[362 rows x 3 columns]
+<span class="nn">Cell In[28], line 8,</span> in <span class="ni">analyze_promotions</span><span class="nt">()</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">promo_impact</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;onpromotion&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">])</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="c1"># Time-based promotion analysis</span>
+<span class="ne">----&gt; </span><span class="mi">8</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="n">promo_by_month</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;month&#39;</span><span class="p">)[</span><span class="s1">&#39;onpromotion&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="g g-Whitespace">     </span><span class="mi">11</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/generic.py:6299,</span> in <span class="ni">NDFrame.__getattr__</span><span class="nt">(self, name)</span>
+<span class="g g-Whitespace">   </span><span class="mi">6292</span> <span class="k">if</span> <span class="p">(</span>
+<span class="g g-Whitespace">   </span><span class="mi">6293</span>     <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_internal_names_set</span>
+<span class="g g-Whitespace">   </span><span class="mi">6294</span>     <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span>
+<span class="g g-Whitespace">   </span><span class="mi">6295</span>     <span class="ow">and</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accessors</span>
+<span class="g g-Whitespace">   </span><span class="mi">6296</span>     <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_info_axis</span><span class="o">.</span><span class="n">_can_hold_identifiers_and_holds_name</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="g g-Whitespace">   </span><span class="mi">6297</span> <span class="p">):</span>
+<span class="g g-Whitespace">   </span><span class="mi">6298</span>     <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+<span class="ne">-&gt; </span><span class="mi">6299</span> <span class="k">return</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/accessor.py:224,</span> in <span class="ni">CachedAccessor.__get__</span><span class="nt">(self, obj, cls)</span>
+<span class="g g-Whitespace">    </span><span class="mi">221</span> <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">222</span>     <span class="c1"># we&#39;re accessing the attribute of the class, i.e., Dataset.geo</span>
+<span class="g g-Whitespace">    </span><span class="mi">223</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accessor</span>
+<span class="ne">--&gt; </span><span class="mi">224</span> <span class="n">accessor_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_accessor</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+<span class="g g-Whitespace">    </span><span class="mi">225</span> <span class="c1"># Replace the property with the accessor object. Inspired by:</span>
+<span class="g g-Whitespace">    </span><span class="mi">226</span> <span class="c1"># https://www.pydanny.com/cached-property.html</span>
+<span class="g g-Whitespace">    </span><span class="mi">227</span> <span class="c1"># We need to use object.__setattr__ because we overwrite __setattr__ on</span>
+<span class="g g-Whitespace">    </span><span class="mi">228</span> <span class="c1"># NDFrame</span>
+<span class="g g-Whitespace">    </span><span class="mi">229</span> <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span> <span class="n">accessor_obj</span><span class="p">)</span>
+
+<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/indexes/accessors.py:643,</span> in <span class="ni">CombinedDatetimelikeProperties.__new__</span><span class="nt">(cls, data)</span>
+<span class="g g-Whitespace">    </span><span class="mi">640</span> <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">PeriodDtype</span><span class="p">):</span>
+<span class="g g-Whitespace">    </span><span class="mi">641</span>     <span class="k">return</span> <span class="n">PeriodProperties</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">orig</span><span class="p">)</span>
+<span class="ne">--&gt; </span><span class="mi">643</span> <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Can only use .dt accessor with datetimelike values&quot;</span><span class="p">)</span>
+
+<span class="ne">AttributeError</span>: Can only use .dt accessor with datetimelike values
 </pre></div>
 </div>
 </div>
@@ -797,13 +2970,13 @@ onpromotion
 <span class="k">def</span> <span class="nf">analyze_oil_impact</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze relationship between oil prices and sales&quot;&quot;&quot;</span>
     <span class="c1"># Merge oil data</span>
-    <span class="n">sales_with_oil</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">oil</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
-    
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+
     <span class="c1"># Calculate correlation</span>
-    <span class="n">correlation</span> <span class="o">=</span> <span class="n">sales_with_oil</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">sales_with_oil</span><span class="p">[</span><span class="s1">&#39;dcoilwtico&#39;</span><span class="p">])</span>
+    <span class="n">correlation</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;dcoilwtico&#39;</span><span class="p">])</span>
     
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">sales_with_oil</span><span class="p">[</span><span class="s1">&#39;dcoilwtico&#39;</span><span class="p">],</span> <span class="n">sales_with_oil</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;dcoilwtico&#39;</span><span class="p">],</span> <span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Sales vs Oil Price (correlation: </span><span class="si">{</span><span class="n">correlation</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">)&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Oil Price&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Sales&#39;</span><span class="p">)</span>
@@ -821,8 +2994,8 @@ onpromotion
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Analyzing oil price impact...
 </pre></div>
 </div>
-<img alt="../_images/eb26b9b75ae5955c017c2af10edcec0652a1517e9ddf9b4439e429d4081a6afe.png" src="../_images/eb26b9b75ae5955c017c2af10edcec0652a1517e9ddf9b4439e429d4081a6afe.png" />
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Oil price correlation with sales: -0.079
+<img alt="../_images/9f382ceb1a89c9a149d1fcfedf41f5920d9b4396b812f1ef6a05a1fd55f0208b.png" src="../_images/9f382ceb1a89c9a149d1fcfedf41f5920d9b4396b812f1ef6a05a1fd55f0208b.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Oil price correlation with sales: -0.075
 </pre></div>
 </div>
 </div>
@@ -832,15 +3005,13 @@ onpromotion
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 7. Holiday Analysis</span>
 <span class="k">def</span> <span class="nf">analyze_holiday_impact</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze sales patterns during holidays&quot;&quot;&quot;</span>
-    <span class="c1"># Create holiday flag</span>
-    <span class="n">holiday_dates</span> <span class="o">=</span> <span class="n">holidays</span><span class="p">[</span><span class="n">holidays</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;Work Day&#39;</span><span class="p">][</span><span class="s1">&#39;date&#39;</span><span class="p">]</span>
-    <span class="n">train</span><span class="p">[</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">holiday_dates</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-    
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+
     <span class="c1"># Compare sales on holidays vs non-holidays</span>
-    <span class="n">holiday_stats</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">])</span>
+    <span class="n">holiday_stats</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">)[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> <span class="s1">&#39;std&#39;</span><span class="p">,</span> <span class="s1">&#39;count&#39;</span><span class="p">])</span>
     
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df_train</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;is_holiday&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;sales&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Sales Distribution: Holiday vs Non-Holiday&#39;</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
     
@@ -857,12 +3028,12 @@ onpromotion
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Analyzing holiday impact...
 </pre></div>
 </div>
-<img alt="../_images/e98a7d1558d97d8ce6111b3fb6d74c7db7f1a5b87f456bc36b255816fd90864e.png" src="../_images/e98a7d1558d97d8ce6111b3fb6d74c7db7f1a5b87f456bc36b255816fd90864e.png" />
+<img alt="../_images/6d3c1a53bbb5073ef7855b1f5de64e379917bbcb04078d6bda96f1f0777b6917.png" src="../_images/6d3c1a53bbb5073ef7855b1f5de64e379917bbcb04078d6bda96f1f0777b6917.png" />
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Holiday vs Non-holiday sales:
                   mean          std    count
 is_holiday                                  
-0           352.110696  1076.029594  2558952
-1           390.578235  1241.224009   441936
+False       352.159181  1076.081977  2551824
+True        393.864762  1253.233869   502524
 </pre></div>
 </div>
 </div>
@@ -873,16 +3044,17 @@ is_holiday
 <span class="k">def</span> <span class="nf">analyze_earthquake_impact</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Analyze impact of the 2016 earthquake&quot;&quot;&quot;</span>
     <span class="n">earthquake_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s1">&#39;2016-04-16&#39;</span><span class="p">)</span>
-    
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
+
     <span class="c1"># Create time windows around earthquake</span>
-    <span class="n">before_earthquake</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">earthquake_date</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span> <span class="o">&amp;</span> 
-        <span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">earthquake_date</span><span class="p">)</span>
+    <span class="n">before_earthquake</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">earthquake_date</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span> <span class="o">&amp;</span> 
+        <span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">earthquake_date</span><span class="p">)</span>
     <span class="p">]</span>
     
-    <span class="n">after_earthquake</span> <span class="o">=</span> <span class="n">train</span><span class="p">[</span>
-        <span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">earthquake_date</span><span class="p">)</span> <span class="o">&amp;</span> 
-        <span class="p">(</span><span class="n">train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">earthquake_date</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
+    <span class="n">after_earthquake</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">[</span>
+        <span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">earthquake_date</span><span class="p">)</span> <span class="o">&amp;</span> 
+        <span class="p">(</span><span class="n">df_train</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">earthquake_date</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">30</span><span class="p">))</span>
     <span class="p">]</span>
     
     <span class="c1"># Compare sales</span>
@@ -905,13 +3077,13 @@ is_holiday
 
 Sales before vs after earthquake:
              before          after
-count  53460.000000   53460.000000
-mean     422.028199     497.406997
-std     1197.638473    1657.391773
+count  53460.000000   62370.000000
+mean     422.028199     502.773620
+std     1197.638473    1691.132072
 min        0.000000       0.000000
 25%        2.000000       2.000000
-50%       21.000000      23.000000
-75%      244.418750     275.031000
+50%       21.000000      24.000000
+75%      244.418750     278.000000
 max    22018.000000  124717.000000
 </pre></div>
 </div>
@@ -923,14 +3095,7 @@ max    22018.000000  124717.000000
 <span class="k">def</span> <span class="nf">analyze_feature_importance</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create and analyze initial features&quot;&quot;&quot;</span>
     <span class="c1"># Create basic features</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">train</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_week&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">dayofweek</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">month</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">year</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;day_of_month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">day</span>
-    
-    <span class="c1"># Merge store data</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">stores</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="s1">&#39;store_nbr&#39;</span><span class="p">)</span>
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;dataset&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;train&#39;</span><span class="p">]</span>
     
     <span class="c1"># Create dummy variables for categorical features</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">,</span> <span class="s1">&#39;family&#39;</span><span class="p">])</span>
@@ -961,18 +3126,18 @@ max    22018.000000  124717.000000
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Analyzing feature importance...
 </pre></div>
 </div>
-<img alt="../_images/8691852543071a07e08f734547777270b89f682cf14e1b0e5e59847bf6bf8e91.png" src="../_images/8691852543071a07e08f734547777270b89f682cf14e1b0e5e59847bf6bf8e91.png" />
+<img alt="../_images/cf40b725eabcf0d1d49d307b28043e7af02414e8144416c35e7cca90776709ed.png" src="../_images/cf40b725eabcf0d1d49d307b28043e7af02414e8144416c35e7cca90776709ed.png" />
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Top correlated features with sales:
-sales           1.000000
-onpromotion     0.427923
-id              0.085784
-year            0.081093
-store_nbr       0.041196
-cluster         0.038525
-day_of_week     0.036869
-month           0.019790
-is_holiday      0.012370
-day_of_month   -0.011887
+sales          1.000000
+onpromotion    0.427923
+id             0.085784
+year           0.081093
+is_weekend     0.051874
+store_nbr      0.041196
+cluster        0.038525
+day_of_week    0.036869
+month          0.019790
+is_holiday     0.012370
 Name: sales, dtype: float64
 </pre></div>
 </div>
@@ -1176,182 +3341,57 @@ Name: sales, dtype: float64
 Missing date values: 0
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_48486/511463118.py:11: FutureWarning: Series.fillna with &#39;method&#39; is deprecated and will raise in a future version. Use obj.ffill() or obj.bfill() instead.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_45153/511463118.py:11: FutureWarning: Series.fillna with &#39;method&#39; is deprecated and will raise in a future version. Use obj.ffill() or obj.bfill() instead.
   df[&#39;date&#39;] = df[&#39;date&#39;].fillna(method=&#39;bfill&#39;) # Backward fill
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating sales features...
+Creating promotion features...
+Creating store features...
+Creating oil features...
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating promotion features...
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating store features...
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating oil features...
-</pre></div>
-</div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_48486/2590496152.py:76: FutureWarning: Series.fillna with &#39;method&#39; is deprecated and will raise in a future version. Use obj.ffill() or obj.bfill() instead.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_45153/2590496152.py:76: FutureWarning: Series.fillna with &#39;method&#39; is deprecated and will raise in a future version. Use obj.ffill() or obj.bfill() instead.
   df[&#39;dcoilwtico&#39;] = df[&#39;dcoilwtico&#39;].fillna(method=&#39;ffill&#39;)
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating earthquake feature...
-</pre></div>
-</div>
-<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
-<span class="ne">KeyboardInterrupt</span><span class="g g-Whitespace">                         </span>Traceback (most recent call last)
-<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">13</span><span class="p">],</span> <span class="n">line</span> <span class="mi">183</span>
-<span class="g g-Whitespace">    </span><span class="mi">180</span> <span class="n">df_engineered</span> <span class="o">=</span> <span class="n">handle_missing_values</span><span class="p">(</span><span class="n">df_engineered</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">182</span> <span class="c1"># Save engineered features</span>
-<span class="ne">--&gt; </span><span class="mi">183</span> <span class="n">df_engineered</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;engineered_features.csv&#39;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">185</span> <span class="nb">print</span><span class="p">(</span><span class="n">df_engineered</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+     id       date  store_nbr        family  sales  onpromotion  month  year  \
+0     0 2013-01-01          1    AUTOMOTIVE    0.0            0      1  2013   
+1  1194 2013-01-01         42   CELEBRATION    0.0            0      1  2013   
+2  1193 2013-01-01         42  BREAD/BAKERY    0.0            0      1  2013   
+3  1192 2013-01-01         42         BOOKS    0.0            0      1  2013   
+4  1191 2013-01-01         42     BEVERAGES    0.0            0      1  2013   
 
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/util/_decorators.py:333,</span> in <span class="ni">deprecate_nonkeyword_arguments.&lt;locals&gt;.decorate.&lt;locals&gt;.wrapper</span><span class="nt">(*args, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">327</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">num_allow_args</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">328</span>     <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">329</span>         <span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">arguments</span><span class="o">=</span><span class="n">_format_argument_list</span><span class="p">(</span><span class="n">allow_args</span><span class="p">)),</span>
-<span class="g g-Whitespace">    </span><span class="mi">330</span>         <span class="ne">FutureWarning</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">331</span>         <span class="n">stacklevel</span><span class="o">=</span><span class="n">find_stack_level</span><span class="p">(),</span>
-<span class="g g-Whitespace">    </span><span class="mi">332</span>     <span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">333</span> <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+   day_of_month  day_of_week  ...  city_Riobamba  city_Salinas  \
+0             1            1  ...          False         False   
+1             1            1  ...          False         False   
+2             1            1  ...          False         False   
+3             1            1  ...          False         False   
+4             1            1  ...          False         False   
 
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/generic.py:3967,</span> in <span class="ni">NDFrame.to_csv</span><span class="nt">(self, path_or_buf, sep, na_rep, float_format, columns, header, index, index_label, mode, encoding, compression, quoting, quotechar, lineterminator, chunksize, date_format, doublequote, escapechar, decimal, errors, storage_options)</span>
-<span class="g g-Whitespace">   </span><span class="mi">3956</span> <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ABCDataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">3958</span> <span class="n">formatter</span> <span class="o">=</span> <span class="n">DataFrameFormatter</span><span class="p">(</span>
-<span class="g g-Whitespace">   </span><span class="mi">3959</span>     <span class="n">frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3960</span>     <span class="n">header</span><span class="o">=</span><span class="n">header</span><span class="p">,</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">3964</span>     <span class="n">decimal</span><span class="o">=</span><span class="n">decimal</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3965</span> <span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">3967</span> <span class="k">return</span> <span class="n">DataFrameRenderer</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-<span class="g g-Whitespace">   </span><span class="mi">3968</span>     <span class="n">path_or_buf</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3969</span>     <span class="n">lineterminator</span><span class="o">=</span><span class="n">lineterminator</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3970</span>     <span class="n">sep</span><span class="o">=</span><span class="n">sep</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3971</span>     <span class="n">encoding</span><span class="o">=</span><span class="n">encoding</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3972</span>     <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3973</span>     <span class="n">compression</span><span class="o">=</span><span class="n">compression</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3974</span>     <span class="n">quoting</span><span class="o">=</span><span class="n">quoting</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3975</span>     <span class="n">columns</span><span class="o">=</span><span class="n">columns</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3976</span>     <span class="n">index_label</span><span class="o">=</span><span class="n">index_label</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3977</span>     <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3978</span>     <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3979</span>     <span class="n">quotechar</span><span class="o">=</span><span class="n">quotechar</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3980</span>     <span class="n">date_format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3981</span>     <span class="n">doublequote</span><span class="o">=</span><span class="n">doublequote</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3982</span>     <span class="n">escapechar</span><span class="o">=</span><span class="n">escapechar</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3983</span>     <span class="n">storage_options</span><span class="o">=</span><span class="n">storage_options</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">3984</span> <span class="p">)</span>
+   city_Santo Domingo  dcoilwtico  oil_price_change  oil_rolling_mean_7  \
+0               False         0.0               0.0           67.909962   
+1               False         0.0               0.0           67.909962   
+2               False         0.0               0.0           67.909962   
+3               False         0.0               0.0           67.909962   
+4               False         0.0               0.0           67.909962   
 
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/io/formats/format.py:1014,</span> in <span class="ni">DataFrameRenderer.to_csv</span><span class="nt">(self, path_or_buf, encoding, sep, columns, index_label, mode, compression, quoting, quotechar, lineterminator, chunksize, date_format, doublequote, escapechar, errors, storage_options)</span>
-<span class="g g-Whitespace">    </span><span class="mi">993</span>     <span class="n">created_buffer</span> <span class="o">=</span> <span class="kc">False</span>
-<span class="g g-Whitespace">    </span><span class="mi">995</span> <span class="n">csv_formatter</span> <span class="o">=</span> <span class="n">CSVFormatter</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">996</span>     <span class="n">path_or_buf</span><span class="o">=</span><span class="n">path_or_buf</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">997</span>     <span class="n">lineterminator</span><span class="o">=</span><span class="n">lineterminator</span><span class="p">,</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1012</span>     <span class="n">formatter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fmt</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1013</span> <span class="p">)</span>
-<span class="ne">-&gt; </span><span class="mi">1014</span> <span class="n">csv_formatter</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
-<span class="g g-Whitespace">   </span><span class="mi">1016</span> <span class="k">if</span> <span class="n">created_buffer</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">1017</span>     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">path_or_buf</span><span class="p">,</span> <span class="n">StringIO</span><span class="p">)</span>
+   oil_rolling_mean_14  oil_rolling_mean_30  days_from_earthquake  \
+0            67.910016            67.910137                 -1201   
+1            67.910016            67.910137                 -1201   
+2            67.910016            67.910137                 -1201   
+3            67.910016            67.910137                 -1201   
+4            67.910016            67.910137                 -1201   
 
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/io/formats/csvs.py:270,</span> in <span class="ni">CSVFormatter.save</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">    </span><span class="mi">251</span> <span class="k">with</span> <span class="n">get_handle</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">252</span>     <span class="bp">self</span><span class="o">.</span><span class="n">filepath_or_buffer</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">253</span>     <span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">258</span> <span class="p">)</span> <span class="k">as</span> <span class="n">handles</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">259</span>     <span class="c1"># Note: self.encoding is irrelevant here</span>
-<span class="g g-Whitespace">    </span><span class="mi">260</span>     <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">csvlib</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">261</span>         <span class="n">handles</span><span class="o">.</span><span class="n">handle</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">262</span>         <span class="n">lineterminator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lineterminator</span><span class="p">,</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">267</span>         <span class="n">quotechar</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">quotechar</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">268</span>     <span class="p">)</span>
-<span class="ne">--&gt; </span><span class="mi">270</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_save</span><span class="p">()</span>
+   earthquake_period  
+0                  0  
+1                  0  
+2                  0  
+3                  0  
+4                  0  
 
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/io/formats/csvs.py:275,</span> in <span class="ni">CSVFormatter._save</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">    </span><span class="mi">273</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_need_to_save_header</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">274</span>     <span class="bp">self</span><span class="o">.</span><span class="n">_save_header</span><span class="p">()</span>
-<span class="ne">--&gt; </span><span class="mi">275</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_body</span><span class="p">()</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/io/formats/csvs.py:313,</span> in <span class="ni">CSVFormatter._save_body</span><span class="nt">(self)</span>
-<span class="g g-Whitespace">    </span><span class="mi">311</span> <span class="k">if</span> <span class="n">start_i</span> <span class="o">&gt;=</span> <span class="n">end_i</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">312</span>     <span class="k">break</span>
-<span class="ne">--&gt; </span><span class="mi">313</span> <span class="bp">self</span><span class="o">.</span><span class="n">_save_chunk</span><span class="p">(</span><span class="n">start_i</span><span class="p">,</span> <span class="n">end_i</span><span class="p">)</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/io/formats/csvs.py:320,</span> in <span class="ni">CSVFormatter._save_chunk</span><span class="nt">(self, start_i, end_i)</span>
-<span class="g g-Whitespace">    </span><span class="mi">317</span> <span class="n">slicer</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start_i</span><span class="p">,</span> <span class="n">end_i</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">318</span> <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obj</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">slicer</span><span class="p">]</span>
-<span class="ne">--&gt; </span><span class="mi">320</span> <span class="n">res</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">_get_values_for_csv</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_number_format</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">321</span> <span class="n">data</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">_iter_column_arrays</span><span class="p">())</span>
-<span class="g g-Whitespace">    </span><span class="mi">323</span> <span class="n">ix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_index</span><span class="p">[</span><span class="n">slicer</span><span class="p">]</span><span class="o">.</span><span class="n">_get_values_for_csv</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">_number_format</span><span class="p">)</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/frame.py:1410,</span> in <span class="ni">DataFrame._get_values_for_csv</span><span class="nt">(self, float_format, date_format, decimal, na_rep, quoting)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1400</span> <span class="k">def</span> <span class="nf">_get_values_for_csv</span><span class="p">(</span>
-<span class="g g-Whitespace">   </span><span class="mi">1401</span>     <span class="bp">self</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1402</span>     <span class="o">*</span><span class="p">,</span>
-   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1408</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">1409</span>     <span class="c1"># helper used by to_csv</span>
-<span class="ne">-&gt; </span><span class="mi">1410</span>     <span class="n">mgr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mgr</span><span class="o">.</span><span class="n">get_values_for_csv</span><span class="p">(</span>
-<span class="g g-Whitespace">   </span><span class="mi">1411</span>         <span class="n">float_format</span><span class="o">=</span><span class="n">float_format</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1412</span>         <span class="n">date_format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1413</span>         <span class="n">decimal</span><span class="o">=</span><span class="n">decimal</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1414</span>         <span class="n">na_rep</span><span class="o">=</span><span class="n">na_rep</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1415</span>         <span class="n">quoting</span><span class="o">=</span><span class="n">quoting</span><span class="p">,</span>
-<span class="g g-Whitespace">   </span><span class="mi">1416</span>     <span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1417</span>     <span class="c1"># error: Incompatible return value type (got &quot;DataFrame&quot;, expected &quot;Self&quot;)</span>
-<span class="g g-Whitespace">   </span><span class="mi">1418</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constructor_from_mgr</span><span class="p">(</span><span class="n">mgr</span><span class="p">,</span> <span class="n">axes</span><span class="o">=</span><span class="n">mgr</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/internals/managers.py:466,</span> in <span class="ni">BaseBlockManager.get_values_for_csv</span><span class="nt">(self, float_format, date_format, decimal, na_rep, quoting)</span>
-<span class="g g-Whitespace">    </span><span class="mi">459</span> <span class="k">def</span> <span class="nf">get_values_for_csv</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">460</span>     <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">float_format</span><span class="p">,</span> <span class="n">date_format</span><span class="p">,</span> <span class="n">decimal</span><span class="p">,</span> <span class="n">na_rep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="kc">None</span>
-<span class="g g-Whitespace">    </span><span class="mi">461</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">462</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="g g-Whitespace">    </span><span class="mi">463</span><span class="sd">     Convert values to native types (strings / python objects) that are used</span>
-<span class="g g-Whitespace">    </span><span class="mi">464</span><span class="sd">     in formatting (repr / csv).</span>
-<span class="g g-Whitespace">    </span><span class="mi">465</span><span class="sd">     &quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">466</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">467</span>         <span class="s2">&quot;get_values_for_csv&quot;</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">468</span>         <span class="n">na_rep</span><span class="o">=</span><span class="n">na_rep</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">469</span>         <span class="n">quoting</span><span class="o">=</span><span class="n">quoting</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">470</span>         <span class="n">float_format</span><span class="o">=</span><span class="n">float_format</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">471</span>         <span class="n">date_format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">472</span>         <span class="n">decimal</span><span class="o">=</span><span class="n">decimal</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">473</span>     <span class="p">)</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/internals/managers.py:363,</span> in <span class="ni">BaseBlockManager.apply</span><span class="nt">(self, f, align_keys, **kwargs)</span>
-<span class="g g-Whitespace">    </span><span class="mi">361</span>         <span class="n">applied</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">362</span>     <span class="k">else</span><span class="p">:</span>
-<span class="ne">--&gt; </span><span class="mi">363</span>         <span class="n">applied</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">f</span><span class="p">)(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">364</span>     <span class="n">result_blocks</span> <span class="o">=</span> <span class="n">extend_blocks</span><span class="p">(</span><span class="n">applied</span><span class="p">,</span> <span class="n">result_blocks</span><span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">366</span> <span class="n">out</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">from_blocks</span><span class="p">(</span><span class="n">result_blocks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">axes</span><span class="p">)</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/internals/blocks.py:780,</span> in <span class="ni">Block.get_values_for_csv</span><span class="nt">(self, float_format, date_format, decimal, na_rep, quoting)</span>
-<span class="g g-Whitespace">    </span><span class="mi">775</span> <span class="nd">@final</span>
-<span class="g g-Whitespace">    </span><span class="mi">776</span> <span class="k">def</span> <span class="nf">get_values_for_csv</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">777</span>     <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">float_format</span><span class="p">,</span> <span class="n">date_format</span><span class="p">,</span> <span class="n">decimal</span><span class="p">,</span> <span class="n">na_rep</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;nan&quot;</span><span class="p">,</span> <span class="n">quoting</span><span class="o">=</span><span class="kc">None</span>
-<span class="g g-Whitespace">    </span><span class="mi">778</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Block</span><span class="p">:</span>
-<span class="g g-Whitespace">    </span><span class="mi">779</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;convert to our native types format&quot;&quot;&quot;</span>
-<span class="ne">--&gt; </span><span class="mi">780</span>     <span class="n">result</span> <span class="o">=</span> <span class="n">get_values_for_csv</span><span class="p">(</span>
-<span class="g g-Whitespace">    </span><span class="mi">781</span>         <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">782</span>         <span class="n">na_rep</span><span class="o">=</span><span class="n">na_rep</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">783</span>         <span class="n">quoting</span><span class="o">=</span><span class="n">quoting</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">784</span>         <span class="n">float_format</span><span class="o">=</span><span class="n">float_format</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">785</span>         <span class="n">date_format</span><span class="o">=</span><span class="n">date_format</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">786</span>         <span class="n">decimal</span><span class="o">=</span><span class="n">decimal</span><span class="p">,</span>
-<span class="g g-Whitespace">    </span><span class="mi">787</span>     <span class="p">)</span>
-<span class="g g-Whitespace">    </span><span class="mi">788</span>     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_block</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
-
-<span class="nn">File ~/Library/Caches/pypoetry/virtualenvs/titanic-SA5bcgBn-py3.9/lib/python3.9/site-packages/pandas/core/indexes/base.py:7834,</span> in <span class="ni">get_values_for_csv</span><span class="nt">(values, date_format, na_rep, quoting, float_format, decimal)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7831</span> <span class="n">mask</span> <span class="o">=</span> <span class="n">isna</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7833</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">quoting</span><span class="p">:</span>
-<span class="ne">-&gt; </span><span class="mi">7834</span>     <span class="n">values</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-<span class="g g-Whitespace">   </span><span class="mi">7835</span> <span class="k">else</span><span class="p">:</span>
-<span class="g g-Whitespace">   </span><span class="mi">7836</span>     <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;object&quot;</span><span class="p">)</span>
-
-<span class="ne">KeyboardInterrupt</span>: 
+[5 rows x 66 columns]
 </pre></div>
 </div>
 </div>
@@ -2050,9 +4090,7 @@ BOOKS          12.73    0.11 -12.73   810
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># forecast on the test set</span>
-<span class="n">test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;./data/test.csv&#39;</span><span class="p">)</span>
-<span class="n">test</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">test</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
-<span class="n">test</span><span class="p">[</span><span class="s1">&#39;sales&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
 
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test data shape: </span><span class="si">{</span><span class="n">test</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Test date range: </span><span class="si">{</span><span class="n">test</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">test</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -2226,6 +4264,15 @@ Unique predictions: [1.27371588e+01 1.27453165e+01 1.27522192e+01 ... 1.00117842
         <p class="prev-next-subtitle">previous</p>
         <p class="prev-next-title">Connectionist Bench (Sonar, Mines vs. Rocks)</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="../titanic-decision-tree/titanic-decision-tree.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Titanic Survival Prediction using Decision Trees</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>

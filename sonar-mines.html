@@ -61,6 +61,7 @@
     <link rel="icon" href="_static/icon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Store Sales - Time Series Forecasting" href="store-sales-time-series-forecasting/store-sales.html" />
     <link rel="prev" title="Boston House Prices" href="boston-house.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -183,6 +184,8 @@
 <li class="toctree-l1"><a class="reference internal" href="iris-data.html">Iris Species</a></li>
 <li class="toctree-l1"><a class="reference internal" href="boston-house.html">Boston House Prices</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Connectionist Bench (Sonar, Mines vs. Rocks)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-sales-time-series-forecasting/store-sales.html">Store Sales - Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="titanic-decision-tree/titanic-decision-tree.html">Titanic Survival Prediction using Decision Trees</a></li>
 </ul>
 
     </div>
@@ -668,11 +671,13 @@ dtype: int64
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>LR: 0.759926 (0.091145)
-LDA: 0.778676 (0.093570)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>LDA: 0.778676 (0.093570)
 </pre></div>
 </div>
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>KNN: 0.758824 (0.106417)
-CART: 0.740074 (0.092089)
+CART: 0.734191 (0.095885)
 NB: 0.682721 (0.136040)
 SVM: 0.565809 (0.141326)
 </pre></div>
@@ -693,7 +698,7 @@ SVM: 0.565809 (0.141326)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/a8fdd244d78d7111f60186b539c8d0a26dc82ae9927adf44dd9c420c8a77d586.png" src="_images/a8fdd244d78d7111f60186b539c8d0a26dc82ae9927adf44dd9c420c8a77d586.png" />
+<img alt="_images/725fc348fff77bff5eecaaabaf4b4cfc39e4a58389381b9c71c66b8f2c16209c.png" src="_images/725fc348fff77bff5eecaaabaf4b4cfc39e4a58389381b9c71c66b8f2c16209c.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -721,11 +726,13 @@ SVM: 0.565809 (0.141326)
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLR: 0.754412 (0.067926)
-ScaledLDA: 0.778676 (0.093570)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledKNN: 0.808456 (0.107996)
-ScaledCART: 0.716912 (0.100617)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLDA: 0.778676 (0.093570)
+ScaledKNN: 0.808456 (0.107996)
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledCART: 0.733824 (0.119722)
 ScaledNB: 0.682721 (0.136040)
 ScaledSVM: 0.826103 (0.081814)
 </pre></div>
@@ -746,7 +753,7 @@ ScaledSVM: 0.826103 (0.081814)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/82fd6861b5f9d62240b55a3df335d7a0a361bc325219eb6b2c95a870dd00a2f0.png" src="_images/82fd6861b5f9d62240b55a3df335d7a0a361bc325219eb6b2c95a870dd00a2f0.png" />
+<img alt="_images/a6b280e6f4e4e187eee3637fff52aa9c59958596c3a9f9420117cdbc9aa971e8.png" src="_images/a6b280e6f4e4e187eee3637fff52aa9c59958596c3a9f9420117cdbc9aa971e8.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -766,7 +773,7 @@ ScaledSVM: 0.826103 (0.081814)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: 0.836029 using {&#39;n_neighbors&#39;: np.int64(1)}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: 0.836029 using {&#39;n_neighbors&#39;: 1}
 </pre></div>
 </div>
 </div>
@@ -788,7 +795,7 @@ ScaledSVM: 0.826103 (0.081814)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: 0.850000 using {&#39;C&#39;: np.float64(1.7)}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: 0.850000 using {&#39;C&#39;: 1.7}
 </pre></div>
 </div>
 </div>
@@ -846,13 +853,13 @@ ScaledSVM: 0.826103 (0.081814)
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>AB: 0.782721 (0.072445)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GBM: 0.808088 (0.110720)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>GBM: 0.789706 (0.133003)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>RF: 0.826103 (0.089378)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>RF: 0.820956 (0.087374)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ET: 0.862132 (0.080602)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ET: 0.879412 (0.077430)
 </pre></div>
 </div>
 </div>
@@ -933,6 +940,15 @@ weighted avg       0.86      0.86      0.86        42
         <p class="prev-next-subtitle">previous</p>
         <p class="prev-next-title">Boston House Prices</p>
       </div>
+    </a>
+    <a class="right-next"
+       href="store-sales-time-series-forecasting/store-sales.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Store Sales - Time Series Forecasting</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
     </a>
 </div>
                 </footer>

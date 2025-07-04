@@ -184,6 +184,8 @@
 <li class="toctree-l1"><a class="reference internal" href="iris-data.html">Iris Species</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Boston House Prices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sonar-mines.html">Connectionist Bench (Sonar, Mines vs. Rocks)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="store-sales-time-series-forecasting/store-sales.html">Store Sales - Time Series Forecasting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="titanic-decision-tree/titanic-decision-tree.html">Titanic Survival Prediction using Decision Trees</a></li>
 </ul>
 
     </div>
@@ -456,7 +458,7 @@ document.write(`
 [506 rows x 14 columns]
 </pre></div>
 </div>
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_43780/2592008294.py:4: FutureWarning: The &#39;delim_whitespace&#39; keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep=&#39;\s+&#39;`` instead
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84223/2592008294.py:4: FutureWarning: The &#39;delim_whitespace&#39; keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep=&#39;\s+&#39;`` instead
   dataset = read_csv(filename, names=names, delim_whitespace=True)
 </pre></div>
 </div>
@@ -690,7 +692,7 @@ MEDV     0.249929 -0.381626 -0.468536 -0.507787  0.333461 -0.737663  1.000000
 LASSO: -27.105803 (13.165915)
 EN: -27.923014 (13.156405)
 KNN: -39.808936 (16.507968)
-CART: -25.236773 (16.552887)
+CART: -26.532459 (19.752973)
 SVR: -67.824695 (32.801531)
 </pre></div>
 </div>
@@ -710,7 +712,7 @@ SVR: -67.824695 (32.801531)
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="_images/95f2b84c275293c2921b94d80e0c0a22de8ecc395f6168a6b8261d7d210db9f1.png" src="_images/95f2b84c275293c2921b94d80e0c0a22de8ecc395f6168a6b8261d7d210db9f1.png" />
+<img alt="_images/8a4aba5604e8099e3006597ac6c6fdc3475c21c0960413e3e634c9788c1a72e8.png" src="_images/8a4aba5604e8099e3006597ac6c6fdc3475c21c0960413e3e634c9788c1a72e8.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -743,11 +745,11 @@ SVR: -67.824695 (32.801531)
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledLR: -22.006009 (12.188886)
 ScaledLASSO: -27.205896 (12.124418)
+ScaledEN: -28.301160 (13.609110)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledEN: -28.301160 (13.609110)
-ScaledKNN: -21.456867 (15.016218)
-ScaledCART: -27.451209 (18.468880)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledKNN: -21.456867 (15.016218)
+ScaledCART: -27.845546 (18.620515)
 ScaledSVR: -29.570404 (18.052973)
 </pre></div>
 </div>
@@ -762,11 +764,11 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_43780/1115231628.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84223/1115231628.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
   pyplot.boxplot(results, labels=names)
 </pre></div>
 </div>
-<img alt="_images/b77830065e4febc07356d01b8294ecade0f80224ee0a414c63a307c76ed48d4c.png" src="_images/b77830065e4febc07356d01b8294ecade0f80224ee0a414c63a307c76ed48d4c.png" />
+<img alt="_images/12cd2232c24d33fbc0225cdf76bcdcc8298e330968112fe2118ba45de7dc5427.png" src="_images/12cd2232c24d33fbc0225cdf76bcdcc8298e330968112fe2118ba45de7dc5427.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -787,7 +789,7 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: -19.497829 using {&#39;n_neighbors&#39;: np.int64(1)}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: -19.497829 using {&#39;n_neighbors&#39;: 1}
 </pre></div>
 </div>
 </div>
@@ -817,16 +819,16 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledAB: -15.882241 (8.636783)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledAB: -15.618859 (7.759029)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledGBM: -11.079805 (8.703887)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledGBM: -11.011864 (8.717405)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledRF: -12.500259 (9.941379)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledRF: -12.711214 (9.897574)
 </pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledET: -9.278079 (6.991962)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>ScaledET: -9.312014 (6.577605)
 </pre></div>
 </div>
 </div>
@@ -840,11 +842,11 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_43780/2660017936.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/var/folders/kf/_5f4g2zd40n8t2rnn343psmc0000gn/T/ipykernel_84223/2660017936.py:1: MatplotlibDeprecationWarning: The &#39;labels&#39; parameter of boxplot() has been renamed &#39;tick_labels&#39; since Matplotlib 3.9; support for the old name will be dropped in 3.11.
   pyplot.boxplot(results, labels=names)
 </pre></div>
 </div>
-<img alt="_images/99382691b4427b84c7a1016d4746733cfbee411080e1978d95cc8a370628d5e1.png" src="_images/99382691b4427b84c7a1016d4746733cfbee411080e1978d95cc8a370628d5e1.png" />
+<img alt="_images/daa92f81620edcbf1be9381cc341e8440be73d78825f9b59eb01108f483a318e.png" src="_images/daa92f81620edcbf1be9381cc341e8440be73d78825f9b59eb01108f483a318e.png" />
 </div>
 </div>
 <div class="cell docutils container">
@@ -862,7 +864,7 @@ ScaledSVR: -29.570404 (18.052973)
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: -10.522386 using {&#39;n_estimators&#39;: np.int64(450)}
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Best: -10.522386 using {&#39;n_estimators&#39;: 450}
 </pre></div>
 </div>
 </div>
